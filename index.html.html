@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>broker.london — Property Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#292640;--blue-mid:#c1c3d0;--blue-light:#f2f2f7;
+  --accent:#CEB47E;--accent-dk:#a8893a;--accent-dim:rgba(206,180,126,0.12);
+  --white:#fff;
+  --g8:#888B8D;--g7:#97999B;--g6:#A7A8A9;--g4:#BBBCBC;
+  --border:#e2e2e8;--sage:#9AAB9E;--sage-dim:rgba(154,171,158,0.15);
+  --warn:#B47D75;--warn-dim:rgba(180,125,117,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Helvetica,Arial,sans-serif;background:var(--blue-light);color:var(--blue);min-height:100vh;}
+
+/* HEADER */
+.site-header{background:var(--blue);padding:24px 20px 0;}
+.site-brand{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;}
+.brand-left{}
+.brand-wordmark{font-family:'Playfair Display',serif;font-size:48px;font-weight:400;color:var(--white);letter-spacing:0.01em;line-height:1;}
+.brand-wordmark em{font-style:italic;}
+.brand-sub{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(193,195,208,0.5);margin-top:5px;}
+.brand-right{text-align:right;}
+.brand-powered{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(193,195,208,0.45);margin-bottom:4px;}
+.brand-powered-names{font-family:'Playfair Display',serif;font-size:13px;font-weight:400;color:rgba(193,195,208,0.65);line-height:1.4;}
+
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex-shrink:0;padding:11px 14px 13px;font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.45);background:transparent;border:none;cursor:pointer;border-bottom:2px solid transparent;transition:color 0.15s,border-color 0.15s;white-space:nowrap;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab:hover:not(.active){color:rgba(255,255,255,0.7);}
+
+.panel{display:none;padding:0 0 40px;}
+.panel.active{display:block;}
+
+/* CARDS AND ACCORDIONS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:2px;margin:14px 16px;overflow:hidden;}
+.acc-head{background:var(--blue);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.acc-head-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:400;color:var(--white);}
+.acc-head-sub{font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--blue-mid);margin-top:2px;}
+.acc-chev{color:var(--blue-mid);font-size:14px;transition:transform 0.2s;flex-shrink:0;margin-left:8px;}
+.acc.open .acc-chev{transform:rotate(180deg);}
+.acc-body{display:none;padding:16px;}
+.acc.open .acc-body{display:block;}
+
+/* FORM */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.fl{font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--g8);}
+.field input,.field select{background:var(--blue-light);border:1px solid var(--border);border-radius:2px;padding:9px 11px;font-family:Helvetica,Arial,sans-serif;font-size:14px;color:var(--blue);outline:none;transition:border-color 0.15s;width:100%;-moz-appearance:textfield;}
+.field input::-webkit-inner-spin-button,.field input::-webkit-outer-spin-button{-webkit-appearance:none;}
+.field input:focus,.field select:focus{border-color:var(--blue);background:var(--white);}
+.field select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23292640' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:28px;}
+.pw{position:relative;}.fp{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--g7);font-size:14px;pointer-events:none;}.pw input{padding-left:19px;}
+.sw{position:relative;}.fss{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--g7);font-size:14px;pointer-events:none;}.sw input{padding-right:24px;}
+.fdiv{border:none;border-top:1px solid var(--border);margin:13px 0;}
+.fsec{font-size:8px;letter-spacing:0.17em;text-transform:uppercase;color:var(--g7);margin-bottom:10px;}
+.vat-tag{display:inline-flex;align-items:center;gap:4px;font-size:9px;letter-spacing:0.09em;text-transform:uppercase;color:var(--sage);background:var(--sage-dim);border:1px solid rgba(154,171,158,0.22);border-radius:2px;padding:3px 8px;margin-top:4px;}
+.chk-row{display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px;}
+.chk-box{width:16px;height:16px;border:1.5px solid var(--border);border-radius:2px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;}
+.chk-box.on{background:var(--blue);border-color:var(--blue);}
+.chk-tick{width:8px;height:8px;display:none;}
+.chk-box.on .chk-tick{display:block;}
+.chk-label{font-size:12px;color:var(--g8);}
+.tog-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:11px;}
+.tog{position:relative;width:34px;height:18px;cursor:pointer;flex-shrink:0;margin-top:1px;}
+.tog input{opacity:0;width:0;height:0;}
+.ttrack{position:absolute;inset:0;background:var(--border);border-radius:18px;transition:background 0.2s;border:1px solid var(--g4);}
+.tog input:checked+.ttrack{background:var(--blue);border-color:var(--blue);}
+.tthumb{position:absolute;top:2px;left:2px;width:14px;height:14px;background:var(--white);border-radius:50%;transition:transform 0.2s;}
+.tog input:checked~.tthumb{transform:translateX(16px);}
+.tog-label{font-size:12px;color:var(--g8);line-height:1.4;cursor:pointer;}
+
+/* SHARE/REF BLOCKS */
+.share-block,.ref-block{background:var(--blue-light);border:1px solid var(--border);border-radius:2px;padding:13px;margin-bottom:9px;}
+.block-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.block-ttl{font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue);font-weight:bold;}
+.rm-btn{font-size:10px;color:var(--g6);cursor:pointer;letter-spacing:0.07em;text-transform:uppercase;border:none;background:none;font-family:Helvetica,Arial,sans-serif;padding:0;}
+.rm-btn:hover{color:var(--warn);}
+.add-btn{display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;border:1px dashed var(--border);border-radius:2px;padding:9px 14px;font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:0.09em;text-transform:uppercase;color:var(--g7);cursor:pointer;width:100%;transition:all 0.15s;margin-bottom:10px;}
+.add-btn:hover{border-color:var(--blue);color:var(--blue);}
+.type-tog{display:flex;border:1px solid var(--border);border-radius:2px;overflow:hidden;margin-bottom:11px;}
+.tp-btn{flex:1;padding:7px 8px;font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--g7);background:var(--white);border:none;cursor:pointer;transition:all 0.15s;text-align:center;border-right:1px solid var(--border);}
+.tp-btn:last-child{border-right:none;}
+.tp-btn.active{background:var(--blue);color:var(--white);}
+.vat-notice{background:rgba(206,180,126,0.09);border:1px solid rgba(206,180,126,0.22);border-radius:2px;padding:8px 10px;margin-top:7px;font-size:10px;color:var(--accent-dk);line-height:1.5;}
+
+/* RESULTS */
+.remaining-box{border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:10px;background:var(--white);}
+.remaining-label{font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--g7);margin-bottom:3px;}
+.remaining-amt{font-family:'Playfair Display',serif;font-size:22px;color:var(--blue);}
+.remaining-amt.warn{color:var(--warn);}
+.remaining-sub{font-size:10px;color:var(--g7);margin-top:2px;}
+.result-card{background:var(--blue);border-radius:2px;padding:16px;margin:0 16px 10px;}
+.rc-label{font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:var(--blue-mid);margin-bottom:3px;}
+.rc-value{font-family:'Playfair Display',serif;font-size:32px;font-weight:400;color:var(--white);line-height:1;}
+.rc-value.accent{color:var(--accent);}
+.rc-value.warn{color:var(--warn);}
+.rc-sub{font-size:10px;color:var(--blue-mid);margin-top:3px;}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px 10px;}
+.rg-cell{background:var(--blue-light);border:1px solid var(--border);border-radius:2px;padding:12px;}
+.rg-label{font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--g7);margin-bottom:4px;}
+.rg-value{font-family:'Playfair Display',serif;font-size:20px;color:var(--blue);}
+.rg-value.accent{color:var(--accent-dk);}
+.rg-value.warn{color:var(--warn);}
+.rg-value.green{color:var(--sage);}
+.rg-sub{font-size:10px;color:var(--g7);margin-top:2px;}
+.result-table{margin:0 16px 10px;background:var(--white);border:1px solid var(--border);border-radius:2px;overflow:hidden;}
+.rt-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid var(--blue-light);font-size:12px;}
+.rt-row:last-child{border-bottom:none;}
+.rt-row.header{background:var(--blue);}
+.rt-row.header span{font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue-mid);}
+.rt-row.total{background:var(--blue-light);}
+.rt-row.total .rt-label{font-weight:500;color:var(--blue);}
+.rt-label{color:var(--g8);}
+.rt-value{font-family:'Playfair Display',serif;font-size:15px;color:var(--blue);}
+.rt-value.accent{color:var(--accent-dk);}
+.rt-value.warn{color:var(--warn);}
+.vpill{display:flex;align-items:center;justify-content:center;gap:6px;margin:0 16px 10px;padding:8px;background:var(--sage-dim);border:1px solid rgba(154,171,158,0.25);border-radius:2px;font-size:9px;letter-spacing:0.11em;text-transform:uppercase;color:var(--sage);}
+.vpill.warn{background:var(--warn-dim);border-color:rgba(180,125,117,0.25);color:var(--warn);}
+.vdot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.agent-card{background:var(--accent-dim);border:1.5px solid rgba(206,180,126,0.28);border-radius:2px;padding:14px 16px;margin:0 16px 8px;}
+.ac-name{font-family:'Playfair Display',serif;font-size:16px;color:var(--blue);margin-bottom:10px;}
+.ac-net-label{font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-dk);margin-bottom:3px;}
+.ac-net{font-family:'Playfair Display',serif;font-size:34px;font-weight:400;color:var(--accent-dk);line-height:1;}
+.ac-pct-of{font-size:10px;color:var(--g7);margin-top:3px;}
+.ac-vat-row{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(206,180,126,0.18);margin-top:8px;}
+.ac-vat-label{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--g7);}
+.ac-vat-amt{font-size:13px;color:var(--g8);}
+.ac-no-vat{font-size:10px;color:var(--accent-dk);font-style:italic;}
+.hg-card{background:var(--blue);border-radius:2px;padding:14px 16px;margin:0 16px 8px;}
+.hg-label{font-size:8px;letter-spacing:0.16em;text-transform:uppercase;color:var(--blue-mid);margin-bottom:2px;}
+.hg-sub{font-size:10px;color:rgba(193,195,208,0.42);margin-bottom:10px;}
+.hg-row{display:flex;align-items:flex-end;justify-content:space-between;}
+.hg-net{font-family:'Playfair Display',serif;font-size:30px;font-weight:400;color:var(--white);line-height:1;}
+.hg-vat{font-size:10px;color:var(--blue-mid);margin-top:3px;}
+.hg-pct{font-family:'Playfair Display',serif;font-size:20px;color:var(--blue-mid);}
+.hg-pct-sub{font-size:10px;color:rgba(193,195,208,0.4);margin-top:2px;}
+.fee-summary{background:var(--white);border:1px solid var(--border);border-radius:2px;margin:0 16px 8px;overflow:hidden;}
+.fs-row{display:flex;align-items:flex-start;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--blue-light);font-size:12px;}
+.fs-row:last-child{border-bottom:none;}
+.fs-row.gross-row{background:var(--blue);}
+.fs-row.pool-row{background:var(--blue-light);}
+.fs-row.deduct-row{background:var(--blue-light);}
+.fs-label{color:var(--g8);font-size:12px;}
+.fs-label.white{color:var(--blue-mid);}
+.fs-label.pool{color:var(--blue);font-weight:500;}
+.fs-right{text-align:right;flex-shrink:0;margin-left:12px;}
+.fs-net{font-family:'Playfair Display',serif;font-size:17px;color:var(--blue);}
+.fs-net.white{color:var(--white);}
+.fs-net.gross-sz{font-size:19px;}
+.fs-net.warn{color:var(--warn);}
+.fs-vat{font-size:10px;color:var(--g6);margin-top:1px;}
+.fs-vat.white{color:rgba(193,195,208,0.42);}
+.slbl{font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--g7);padding:14px 16px 0;}
+
+/* DISCLAIMER BOX */
+.disc-box{margin:16px 16px 4px;background:#f7f4ef;border:1px solid #ddd8cc;border-radius:2px;padding:14px 16px;}
+.disc-box-title{font-size:8px;letter-spacing:0.16em;text-transform:uppercase;color:var(--blue);font-weight:500;margin-bottom:7px;}
+.disc-box p{font-size:10px;color:var(--g7);line-height:1.7;}
+.disc-box a{color:var(--g7);}
+
+.site-footer{background:var(--blue);padding:16px 20px;margin-top:20px;}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.footer-brand{font-family:'Playfair Display',serif;font-size:14px;color:var(--white);letter-spacing:0.04em;}
+.footer-brand em{font-style:italic;}
+.footer-note{font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(193,195,208,0.32);}
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <div class="site-brand">
+    <div class="brand-left">
+      <div class="brand-wordmark">broker<em>.london</em></div>
+      <div class="brand-sub">Property tools for professionals</div>
+    </div>
+    <div class="brand-right">
+      <div class="brand-powered">Powered by</div>
+      <div class="brand-powered-names">Harding Green<br>and The London Broker</div>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" onclick="showTab('feeSplit',this)">Fee Split</button>
+    <button class="tab" onclick="showTab('sdlt',this)">Stamp Duty</button>
+    <button class="tab" onclick="showTab('mortgage',this)">Mortgage</button>
+    <button class="tab" onclick="showTab('lease',this)">Lease Extension</button>
+    <button class="tab" onclick="showTab('devapp',this)">Development Appraisal</button>
+  </nav>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 1 — FEE SPLIT
+══════════════════════════════════════════ -->
+<div class="panel active" id="panel-feeSplit">
+
+  <!-- hero -->
+  <div style="background:var(--blue);padding:20px 16px 16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid rgba(255,255,255,0.12);padding-top:18px;">
+      <div>
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;">Net Agency Fee</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:400;color:var(--accent);line-height:1;" id="fsHeroFee">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;" id="fsHeroFeeSub">ex VAT</div>
+      </div>
+      <div style="padding-left:20px;border-left:1px solid rgba(255,255,255,0.12);">
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;">Agent Earnings</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:400;color:var(--white);line-height:1;" id="fsHeroAgent">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;" id="fsHeroAgentSub">net ex VAT</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
+      <div>
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:3px;">Company Share</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:rgba(255,255,255,0.7);line-height:1;" id="fsHeroHG">—</div>
+      </div>
+      <div style="padding-left:20px;border-left:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:3px;">Referral Fees Out</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:rgba(255,255,255,0.7);line-height:1;" id="fsHeroDeducted">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slbl">Step 1 — Deal details</div>
+  <div class="card">
+    <div class="acc open" id="accDeal">
+      <div class="acc-head" onclick="toggleAcc('accDeal')"><div><div class="acc-head-title">Deal Details</div><div class="acc-head-sub" id="accDealSub">Click to collapse</div></div><div class="acc-chev">&#8743;</div></div>
+      <div class="acc-body">
+        <div class="fg">
+          <div class="field" style="grid-column:1/-1;"><div class="fl">Property Address</div><input type="text" id="fsProp" placeholder="e.g. 14 Sloane Square, SW1W" oninput="fsCalc()"></div>
+          <div class="field"><div class="fl">Sale Price</div><div class="pw"><span class="fp">£</span><input type="number" id="fsSale" placeholder="0" oninput="fsCalc()"></div></div>
+          <div class="field"><div class="fl">Agency Fee %</div><div class="sw"><input type="number" id="fsFeePct" value="2" step="0.01" oninput="fsCalc()"><span class="fss">%</span></div><div class="vat-tag">Always + VAT at 20%</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slbl">Step 2 — External referrers (if applicable)</div>
+  <div class="card">
+    <div class="acc open" id="accRef">
+      <div class="acc-head" onclick="toggleAcc('accRef')"><div><div class="acc-head-title">External Referrers</div><div class="acc-head-sub" id="accRefSub">e.g. Third Party Referral, Joint Agent Fee</div></div><div class="acc-chev">&#8743;</div></div>
+      <div class="acc-body"><div id="fsRefContainer"></div><button class="add-btn" onclick="fsAddRef()">+ Add external referrer</button></div>
+    </div>
+  </div>
+
+  <div class="slbl">Step 3 — Brokerage split</div>
+  <div class="card">
+    <div class="acc open" id="accTier">
+      <div class="acc-head" onclick="toggleAcc('accTier')"><div><div class="acc-head-title">What fee are you charging and what is your split?</div><div class="acc-head-sub" id="accTierSub">Enter the percentage of the net fee going to agents</div></div><div class="acc-chev">&#8743;</div></div>
+      <div class="acc-body">
+        <div class="fsec">Enter the percentage of the net fee that agents receive within the brokerage.</div>
+        <div class="fg">
+          <div class="field" style="grid-column:1/-1;">
+            <div class="fl">Agent split (% of net fee)</div>
+            <div class="sw"><input type="number" id="fsSplitPct" value="70" min="1" max="99" step="1" oninput="fsCalc()"><span class="fss">%</span></div>
+            <div style="font-size:10px;color:var(--g7);margin-top:4px;">The remaining <span id="fsSplitCompPct">30</span>% is retained by the company.</div>
+          </div>
+        </div>
+        <div id="fsTierDisplay"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slbl">Step 4 — Agent allocations</div>
+  <div class="card">
+    <div class="acc open" id="accAgent">
+      <div class="acc-head" onclick="toggleAcc('accAgent')"><div><div class="acc-head-title">Split within the brokerage</div><div class="acc-head-sub" id="accAgentSub">Agent 1 receives the balance after other agents</div></div><div class="acc-chev">&#8743;</div></div>
+      <div class="acc-body" id="fsAgentBody"></div>
+    </div>
+  </div>
+
+  <div id="fsResultsWrap" class="hidden">
+    <div style="padding:0 16px;margin-bottom:8px;"><div style="font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--g8);">Breakdown</div></div>
+    <div id="fsResultsInner"></div>
+  </div>
+
+  <!-- DISCLAIMER -->
+  <div class="disc-box">
+    <div class="disc-box-title">Important notice</div>
+    <p>This fee split calculator is provided for indicative purposes only. Figures are based on the inputs entered and may not reflect actual contractual obligations, VAT treatment, or brokerage agreements. All results should be verified independently. broker.london, Harding Green and The London Broker accept no liability for any loss arising from reliance on this tool. Always seek advice from a qualified professional before making any financial decision.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 2 — STAMP DUTY
+══════════════════════════════════════════ -->
+<div class="panel" id="panel-sdlt">
+
+  <div style="background:var(--blue);padding:20px 16px 16px;margin-bottom:0;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid rgba(255,255,255,0.12);padding-top:18px;">
+      <div>
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;">Total SDLT</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:400;color:var(--white);line-height:1;" id="sdltHeroTotal">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;" id="sdltHeroSub"></div>
+      </div>
+      <div style="padding-left:20px;border-left:1px solid rgba(255,255,255,0.12);">
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;">Effective Rate</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:400;color:var(--accent);line-height:1;" id="sdltHeroRate">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;" id="sdltHeroRateSub"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.3);">
+      <span>broker.london</span><span>England &amp; Northern Ireland only</span><span>Rates as of 1 April 2025</span>
+    </div>
+  </div>
+
+  <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--g7);padding:14px 16px 0;">Step 1 — Property details</div>
+  <div class="card">
+    <div class="acc open" id="accSDLT">
+      <div class="acc-head" onclick="toggleAcc('accSDLT')"><div><div class="acc-head-title">Purchase Details</div><div class="acc-head-sub" id="accSDLTSub">Enter price and select buyer type</div></div><div class="acc-chev">&#8743;</div></div>
+      <div class="acc-body">
+        <div style="background:var(--blue);color:rgba(255,255,255,0.6);padding:10px 14px;font-size:11px;line-height:1.55;margin-bottom:16px;border-left:3px solid var(--accent);">
+          <strong style="color:var(--white);">England and Northern Ireland only.</strong> Different taxes apply elsewhere: LBTT in Scotland, LTT in Wales. Rates reflect HMRC guidance updated 1 April 2025.
+        </div>
+        <div style="margin-bottom:16px;">
+          <div class="fl" style="margin-bottom:8px;">Property purchase price</div>
+          <div style="display:flex;align-items:center;border-bottom:1.5px solid var(--blue);padding-bottom:6px;">
+            <span style="font-family:'Playfair Display',serif;font-size:26px;color:var(--blue);margin-right:3px;line-height:1;">£</span>
+            <input type="text" id="sdltPriceInput" placeholder="0" inputmode="numeric" autocomplete="off" style="font-family:'Playfair Display',serif;font-size:32px;font-weight:400;color:var(--blue);border:none;background:transparent;outline:none;width:100%;letter-spacing:0.5px;">
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div class="fl" style="margin-bottom:8px;">Buyer type</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border);">
+            <button class="sdlt-type-btn active" data-type="ftb" style="padding:10px 8px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;background:var(--blue);color:var(--white);border:none;border-right:1px solid var(--border);border-bottom:1px solid var(--border);cursor:pointer;text-align:center;transition:all 0.15s;">First-time buyer</button>
+            <button class="sdlt-type-btn" data-type="standard" style="padding:10px 8px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;background:var(--white);color:var(--g7);border:none;border-bottom:1px solid var(--border);cursor:pointer;text-align:center;transition:all 0.15s;">Moving home</button>
+            <button class="sdlt-type-btn" data-type="additional" style="padding:10px 8px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;background:var(--white);color:var(--g7);border:none;border-right:1px solid var(--border);cursor:pointer;text-align:center;transition:all 0.15s;">Additional property</button>
+            <button class="sdlt-type-btn" data-type="company_invest" style="padding:10px 8px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;background:var(--white);color:var(--g7);border:none;cursor:pointer;text-align:center;transition:all 0.15s;">Company</button>
+          </div>
+          <div id="sdltAtedRow" style="display:none;border:1px solid var(--border);border-top:none;">
+            <button class="sdlt-type-btn" data-type="company_ated" style="display:block;width:100%;padding:9px 12px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;background:var(--white);color:var(--g7);border:none;cursor:pointer;text-align:left;transition:all 0.15s;">Company — ATED / non-qualifying use (director occupation etc.)</button>
+          </div>
+        </div>
+        <div style="border:1px solid var(--border);">
+          <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--g7);" id="sdltLblNonRes">
+            <input type="checkbox" id="sdltChkNonRes" style="width:13px;height:13px;accent-color:var(--blue);cursor:pointer;"> Non-UK resident (+2%)
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--g7);" id="sdltLblReplacing">
+            <input type="checkbox" id="sdltChkReplacing" style="width:13px;height:13px;accent-color:var(--blue);cursor:pointer;"> Replacing main residence (prev. home sold)
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--g7);" id="sdltLblLeasehold">
+            <input type="checkbox" id="sdltChkLeasehold" style="width:13px;height:13px;accent-color:var(--blue);cursor:pointer;"> New leasehold property
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="sdltNoteCompanyInvest" style="display:none;background:#fdf6e8;border:1px solid #e8d190;padding:12px 16px;margin:0 16px 4px;font-size:11px;color:#7a5a20;line-height:1.6;"><strong>Company standard investment / rental:</strong> Most property companies pay standard residential rates plus the <strong>5% additional dwellings surcharge</strong> on every band. Professional tax advice is strongly recommended.</div>
+  <div id="sdltNoteCompanyAted" style="display:none;background:#fdf6e8;border:1px solid #e8d190;padding:12px 16px;margin:0 16px 4px;font-size:11px;color:#7a5a20;line-height:1.6;"><strong>Company ATED / non-qualifying use:</strong> A flat rate of <strong>17%</strong> applies to the entire purchase price above £500,000 for personal or non-qualifying use. ATED will also apply annually. Seek specialist advice.</div>
+  <div id="sdltNoteNonRes" style="display:none;background:#fdf6e8;border:1px solid #e8d190;padding:12px 16px;margin:0 16px 4px;font-size:11px;color:#7a5a20;line-height:1.6;"><strong>Non-UK resident surcharge:</strong> A <strong>2% surcharge</strong> is added on top of all other SDLT rates where you were not present in the UK for at least 183 days in the 12 months before purchase.</div>
+  <div id="sdltNoteReplacing" style="display:none;background:#fdf6e8;border:1px solid #e8d190;padding:12px 16px;margin:0 16px 4px;font-size:11px;color:#7a5a20;line-height:1.6;"><strong>Replacing main residence:</strong> If your previous home has already been sold, the 5% additional surcharge does <strong>not</strong> apply.</div>
+  <div id="sdltNoteLeasehold" style="display:none;background:#fdf6e8;border:1px solid #e8d190;padding:12px 16px;margin:0 16px 4px;font-size:11px;color:#7a5a20;line-height:1.6;"><strong>New leasehold property:</strong> This calculation covers the lease premium only. Additional SDLT may be payable on the net present value of rent where the NPV exceeds £125,000. Ask your solicitor to calculate this separately.</div>
+
+  <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--g7);padding:14px 16px 0;">Step 2 — Calculation</div>
+  <div id="sdltBreakdownWrap" style="margin:8px 16px 0;">
+    <div style="background:var(--white);border:1px solid var(--border);padding:28px 16px;text-align:center;font-size:12px;color:var(--g6);letter-spacing:0.08em;text-transform:uppercase;">Enter a purchase price above to calculate</div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px;margin:12px 16px 0;">
+    <button id="sdltCopyBtn" onclick="sdltCopy()" style="display:inline-flex;align-items:center;gap:6px;font-family:Helvetica,Arial,sans-serif;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue);background:transparent;border:1px solid var(--blue);padding:9px 16px;cursor:pointer;">Copy calculation</button>
+    <span id="sdltCopyConfirm" style="font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--g7);opacity:0;transition:opacity 0.3s;">Copied</span>
+  </div>
+
+  <!-- rate reference tables -->
+  <div style="margin:16px 16px 0;padding-top:14px;border-top:1px solid var(--border);">
+    <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--g7);margin-bottom:10px;">Rate reference — all scenarios</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
+      <div style="background:var(--white);border:1px solid var(--border);padding:14px;">
+        <div style="font-family:'Playfair Display',serif;font-size:14px;color:var(--blue);margin-bottom:2px;">Standard <em style="font-style:italic;color:var(--accent-dk);">— single property</em></div>
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--g6);margin-bottom:10px;">England &amp; NI · 1 April 2025</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr><th style="font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--g6);text-align:left;padding:5px 0;border-bottom:1px solid var(--border);font-weight:400;">Band</th><th style="font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--g6);text-align:right;padding:5px 0;border-bottom:1px solid var(--border);font-weight:400;">Rate</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:5px 0;border-bottom:1px solid var(--blue-light);color:var(--g8);">Up to £125,000</td><td style="text-align:right;"><span style="background:var(--blue);color:var(--white);font-size:9px;padding:2px 6px;">0%</span></td></tr>
+          <tr><td style="padding:5px 0;border-bottom:1px solid var(--blue-light);color:var(--g8);">£125,001 to £250,000</td><td style="text-align:right;"><span style="background:var(--blue);color:var(--white);font-size:9px;padding:2px 6px;">2%</span></td></tr>
+          <tr><td style="padding:5px 0;border-bottom:1px solid var(--blue-light);color:var(--g8);">£250,001 to £925,000</td><td style="text-align:right;"><span style="background:var(--blue);color:var(--white);font-size:9px;padding:2px 6px;">5%</span></td></tr>
+          <tr><td style="padding:5px 0;border-bottom:1px solid var(--blue-light);color:var(--g8);">£925,001 to £1,500,000</td><td style="text-align:right;"><span style="background:var(--blue);color:var(--white);font-size:9px;padding:2px 6px;">10%</span></td></tr>
+          <tr><td style="padding:5px 0;color:var(--g8);">Above £1,500,000</td><td style="text-align:right;"><span style="background:var(--blue);color:var(--white);font-size:9px;padding:2px 6px;">12%</span></td></tr>
+        </tbody></table>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);padding:14px;">
+        <div style="font-family:'Playfair Display',serif;font-size:14px;color:var(--blue);margin-bottom:2px;">First-time buyer <em style="font-style:italic;color:var(--accent-dk);">relief</em></div>
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--g6);margin-bottom:10px;">Properties up to £500,000 only</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr><th style="font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--g6);text-align:left;padding:5px 0;border-bottom:1px solid var(--border);font-weight:400;">Band</th><th style="font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--g6);text-align:right;padding:5px 0;border-bottom:1px solid var(--border);font-weight:400;">Rate</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:5px 0;border-bottom:1px solid var(--blue-light);color:var(--g8);">Up to £300,000</td><td style="text-align:right;"><span style="background:var(--blue);color:var(--white);font-size:9px;padding:2px 6px;">0%</span></td></tr>
+          <tr><td style="padding:5px 0;border-bottom:1px solid var(--blue-light);color:var(--g8);">£300,001 to £500,000</td><td style="text-align:right;"><span style="background:var(--blue);color:var(--white);font-size:9px;padding:2px 6px;">5%</span></td></tr>
+          <tr><td colspan="2" style="padding:5px 0;font-size:10px;color:var(--g6);font-style:italic;">Above £500,000 — standard rates apply on full price</td></tr>
+        </tbody></table>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);padding:14px;">
+        <div style="font-family:'Playfair Display',serif;font-size:14px;color:var(--blue);margin-bottom:2px;">Additional property <em style="font-style:italic;color:var(--accent-dk);">surcharge</em></div>
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--g6);margin-bottom:10px;">Standard rates + 5% on every band</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr><th style="font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--g6);text-align:left;padding:5px 0;border-bottom:1px solid var(--border);font-weight:400;">Band</th><th style="font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--g6);text-align:right;padding:5px 0;border-bottom:1px solid var(--border);font-weight:400;">Rate</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:5px 0;border-bottom:1px solid var(--blue-light);color:var(--g8);">Up to £125,000</td><td style="text-align:right;"><span style="background:var(--blue);color:var(--white);font-size:9px;padding:2px 6px;">5%</span></td></tr>
+          <tr><td style="padding:5px 0;border-bottom:1px solid var(--blue-light);color:var(--g8);">£125,001 to £250,000</td><td style="text-align:right;"><span style="background:var(--blue);color:var(--white);font-size:9px;padding:2px 6px;">7%</span></td></tr>
+          <tr><td style="padding:5px 0;border-bottom:1px solid var(--blue-light);color:var(--g8);">£250,001 to £925,000</td><td style="text-align:right;"><span style="background:var(--blue);color:var(--white);font-size:9px;padding:2px 6px;">10%</span></td></tr>
+          <tr><td style="padding:5px 0;border-bottom:1px solid var(--blue-light);color:var(--g8);">£925,001 to £1,500,000</td><td style="text-align:right;"><span style="background:var(--blue);color:var(--white);font-size:9px;padding:2px 6px;">15%</span></td></tr>
+          <tr><td style="padding:5px 0;color:var(--g8);">Above £1,500,000</td><td style="text-align:right;"><span style="background:var(--blue);color:var(--white);font-size:9px;padding:2px 6px;">17%</span></td></tr>
+        </tbody></table>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);padding:14px;">
+        <div style="font-family:'Playfair Display',serif;font-size:14px;color:var(--blue);margin-bottom:2px;">Company <em style="font-style:italic;color:var(--accent-dk);">— ATED</em></div>
+        <div style="font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--g6);margin-bottom:10px;">Personal occupation or non-qualifying use</div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr><th style="font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--g6);text-align:left;padding:5px 0;border-bottom:1px solid var(--border);font-weight:400;">Circumstance</th><th style="font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--g6);text-align:right;padding:5px 0;border-bottom:1px solid var(--border);font-weight:400;">Rate</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:5px 0;border-bottom:1px solid var(--blue-light);color:var(--g8);">Over £500,000 non-qualifying</td><td style="text-align:right;"><span style="background:var(--accent);color:var(--blue);font-size:9px;padding:2px 6px;font-weight:500;">17% flat</span></td></tr>
+          <tr><td style="padding:5px 0;border-bottom:1px solid var(--blue-light);color:var(--g8);">+ Non-resident surcharge</td><td style="text-align:right;"><span style="background:var(--accent);color:var(--blue);font-size:9px;padding:2px 6px;font-weight:500;">19% flat</span></td></tr>
+          <tr><td colspan="2" style="padding:5px 0;font-size:10px;color:var(--g6);font-style:italic;">Under £500,000 — banded rates apply. ATED also due annually.</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISCLAIMER -->
+  <div class="disc-box">
+    <div class="disc-box-title">Important notice</div>
+    <p>This SDLT calculator is provided for indicative purposes only and does not constitute tax or legal advice. SDLT legislation is complex and subject to change. Figures may not be 100% accurate and you must carry out your own due diligence to verify any result before relying on it. Leasehold NPV, reliefs, exemptions, linked transactions and ATED charges are not fully modelled. broker.london, Harding Green and The London Broker accept no liability for any loss arising from use of this tool. <strong>Always seek advice from a qualified solicitor or tax adviser before exchanging contracts.</strong> <a href="https://www.gov.uk/stamp-duty-land-tax/residential-property-rates" target="_blank">gov.uk/stamp-duty-land-tax</a></p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 3 — MORTGAGE
+══════════════════════════════════════════ -->
+<div class="panel" id="panel-mortgage">
+  <div style="background:var(--blue);padding:20px 16px 16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid rgba(255,255,255,0.12);padding-top:18px;">
+      <div>
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;">Monthly Payment</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:400;color:var(--accent);line-height:1;" id="mHeroMonthly">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;" id="mHeroMonthlySub">per month</div>
+      </div>
+      <div style="padding-left:20px;border-left:1px solid rgba(255,255,255,0.12);">
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;">Total Interest</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:400;color:var(--white);line-height:1;" id="mHeroInterest">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;" id="mHeroInterestSub">over full term</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
+      <div>
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:3px;">Total Repaid</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:rgba(255,255,255,0.7);line-height:1;" id="mHeroTotal">—</div>
+      </div>
+      <div style="padding-left:20px;border-left:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:3px;">Annual Cost</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:rgba(255,255,255,0.7);line-height:1;" id="mHeroAnnual">—</div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px;">
+    <div class="acc open" id="accMortgage">
+      <div class="acc-head" onclick="toggleAcc('accMortgage')"><div><div class="acc-head-title">Mortgage Calculator</div><div class="acc-head-sub">Repayment and interest only</div></div><div class="acc-chev">&#8743;</div></div>
+      <div class="acc-body">
+        <div class="fg">
+          <div class="field"><div class="fl">Mortgage Amount</div><div class="pw"><span class="fp">£</span><input type="number" id="mAmount" placeholder="600000" oninput="mortCalc()"></div></div>
+          <div class="field"><div class="fl">Interest Rate</div><div class="sw"><input type="number" id="mRate" value="3.89" step="0.01" oninput="mortCalc()"><span class="fss">%</span></div></div>
+          <div class="field"><div class="fl">Term (years)</div><input type="number" id="mTerm" value="35" min="1" max="40" oninput="mortCalc()"></div>
+          <div class="field"><div class="fl">Mortgage Type</div>
+            <select id="mType" onchange="mortCalc()">
+              <option value="repayment">Repayment</option>
+              <option value="interest">Interest only</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="mortResults" class="hidden">
+    <div class="result-card"><div class="rc-label">Monthly Payment</div><div class="rc-value accent" id="mortMonthly">—</div><div class="rc-sub" id="mortMonthlySub">—</div></div>
+    <div class="result-grid">
+      <div class="rg-cell"><div class="rg-label">Total Repaid</div><div class="rg-value" id="mortTotal">—</div><div class="rg-sub" id="mortTotalSub">—</div></div>
+      <div class="rg-cell"><div class="rg-label">Total Interest</div><div class="rg-value warn" id="mortInterest">—</div><div class="rg-sub" id="mortInterestPct">—</div></div>
+      <div class="rg-cell"><div class="rg-label">Annual Cost</div><div class="rg-value" id="mortAnnual">—</div><div class="rg-sub">12 monthly payments</div></div>
+      <div class="rg-cell"><div class="rg-label">Interest as % of loan</div><div class="rg-value" id="mortIntPct">—</div><div class="rg-sub">over full term</div></div>
+    </div>
+    <div class="card" style="margin-top:4px;">
+      <div class="acc open" id="accMortS">
+        <div class="acc-head" onclick="toggleAcc('accMortS')"><div><div class="acc-head-title">Rate Comparison</div><div class="acc-head-sub">Monthly payment at different rates</div></div><div class="acc-chev">&#8743;</div></div>
+        <div class="acc-body" style="padding:0;"><div class="result-table" style="margin:0;" id="mortScenarios"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="disc-box">
+    <div class="disc-box-title">Important notice</div>
+    <p>This mortgage calculator is provided for indicative purposes only and does not constitute financial advice. Figures are based solely on the inputs entered and may not reflect actual lender offers, fees, or terms. Results may not be 100% accurate and you should carry out your own due diligence before relying on any figure. Always consult a qualified, FCA-authorised mortgage adviser before making any financial decision. broker.london, Harding Green and The London Broker accept no liability for any loss arising from use of this tool.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 4 — LEASE EXTENSION
+══════════════════════════════════════════ -->
+<div class="panel" id="panel-lease">
+  <div style="background:var(--blue);padding:20px 16px 16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid rgba(255,255,255,0.12);padding-top:18px;">
+      <div>
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;">Estimated Premium</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:400;color:var(--accent);line-height:1;" id="lHeroPremium">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;" id="lHeroPremiumSub">indicative statutory premium</div>
+      </div>
+      <div style="padding-left:20px;border-left:1px solid rgba(255,255,255,0.12);">
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;">Value Uplift</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:400;color:var(--white);line-height:1;" id="lHeroUplift">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;">freehold minus leasehold</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
+      <div>
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:3px;">Marriage Value</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:rgba(255,255,255,0.7);line-height:1;" id="lHeroMarriage">—</div>
+      </div>
+      <div style="padding-left:20px;border-left:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:3px;">Years Remaining</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:rgba(255,255,255,0.7);line-height:1;" id="lHeroYears">—</div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px;">
+    <div class="acc open" id="accLease">
+      <div class="acc-head" onclick="toggleAcc('accLease')"><div><div class="acc-head-title">Lease Extension Calculator</div><div class="acc-head-sub">Indicative premium under the Leasehold Reform Act 1993</div></div><div class="acc-chev">&#8743;</div></div>
+      <div class="acc-body">
+        <div class="fg">
+          <div class="field"><div class="fl">Freehold Value (unencumbered)</div><div class="pw"><span class="fp">£</span><input type="number" id="lFreeholdVal" placeholder="0" oninput="leaseCalc()"></div></div>
+          <div class="field"><div class="fl">Current Leasehold Value</div><div class="pw"><span class="fp">£</span><input type="number" id="lLeaseVal" placeholder="0" oninput="leaseCalc()"></div></div>
+          <div class="field"><div class="fl">Years Remaining on Lease</div><input type="number" id="lYearsLeft" value="75" min="1" max="99" oninput="leaseCalc()"></div>
+          <div class="field"><div class="fl">Annual Ground Rent</div><div class="pw"><span class="fp">£</span><input type="number" id="lGroundRent" placeholder="0" oninput="leaseCalc()"></div></div>
+          <div class="field"><div class="fl">Capitalisation Rate (%)</div><div class="sw"><input type="number" id="lCapRate" value="5" step="0.1" oninput="leaseCalc()"><span class="fss">%</span></div></div>
+          <div class="field"><div class="fl">Deferment Rate (%)</div><div class="sw"><input type="number" id="lDefRate" value="5" step="0.1" oninput="leaseCalc()"><span class="fss">%</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="leaseResults" class="hidden">
+    <div class="result-card"><div class="rc-label">Estimated Extension Premium</div><div class="rc-value accent" id="lPremium">—</div><div class="rc-sub">Indicative statutory premium — 90 years added to existing term</div></div>
+    <div class="result-grid">
+      <div class="rg-cell"><div class="rg-label">Marriage Value</div><div class="rg-value" id="lMarriage">—</div><div class="rg-sub">50% to freeholder (if under 80 yrs)</div></div>
+      <div class="rg-cell"><div class="rg-label">Ground Rent Capitalisation</div><div class="rg-value" id="lGRCap">—</div><div class="rg-sub">Present value of ground rent</div></div>
+      <div class="rg-cell"><div class="rg-label">Reversion Value</div><div class="rg-value" id="lReversion">—</div><div class="rg-sub">PV of freehold at lease end</div></div>
+      <div class="rg-cell"><div class="rg-label">Value Uplift</div><div class="rg-value green" id="lUplift">—</div><div class="rg-sub">Freehold minus leasehold value</div></div>
+    </div>
+    <!-- cost of delay -->
+    <div class="result-grid">
+      <div class="rg-cell" style="grid-column:1/-1;">
+        <div class="rg-label">Estimated cost of delaying one year</div>
+        <div class="rg-value warn" id="lDelayCost">—</div>
+        <div class="rg-sub" id="lDelaySub">Based on one additional year of lease erosion</div>
+      </div>
+    </div>
+    <!-- mortgage lender warning -->
+    <div id="lMortgageWarn" class="hidden" style="margin:0 16px 10px;background:var(--warn-dim);border:1px solid rgba(180,125,117,0.3);border-radius:2px;padding:12px 14px;">
+      <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--warn);font-weight:500;margin-bottom:4px;">Mortgage lender threshold</div>
+      <div style="font-size:11px;color:var(--warn);line-height:1.5;">With fewer than 70 years remaining, many high street lenders will decline to mortgage this property. Most lenders require at least 70 to 85 years remaining at the end of the mortgage term. Extension is strongly advised before any sale or remortgage.</div>
+    </div>
+    <!-- comparison table -->
+    <div class="card" style="margin-top:4px;">
+      <div class="acc open" id="accLeaseComp">
+        <div class="acc-head" onclick="toggleAcc('accLeaseComp')"><div><div class="acc-head-title">Premium at different lease lengths</div><div class="acc-head-sub">How the premium changes as years remaining decrease</div></div><div class="acc-chev">&#8743;</div></div>
+        <div class="acc-body" style="padding:0;"><div class="result-table" style="margin:0;" id="leaseCompTable"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="disc-box">
+    <div class="disc-box-title">Important notice</div>
+    <p>This lease extension calculator is a simplified indicative tool only. It does not constitute legal, valuation or financial advice. Actual premiums depend on RICS-qualified surveyor valuations, tribunal determinations, ground rent review clauses, and other factors not captured here. Results may not be 100% accurate and you must carry out your own due diligence. broker.london, Harding Green and The London Broker accept no liability for any loss arising from use of this tool. Always instruct a specialist leasehold solicitor and chartered surveyor before serving any notice or making any offer to a freeholder.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 5 — DEVELOPMENT APPRAISAL
+══════════════════════════════════════════ -->
+<div class="panel" id="panel-devapp">
+  <div style="background:var(--blue);padding:20px 16px 16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid rgba(255,255,255,0.12);padding-top:18px;">
+      <div>
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;">Net Profit</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:400;color:var(--accent);line-height:1;" id="devHeroProfit">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;" id="devHeroProfitSub">indicative</div>
+      </div>
+      <div style="padding-left:20px;border-left:1px solid rgba(255,255,255,0.12);">
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:4px;">Return on Cost</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:400;color:var(--white);line-height:1;" id="devHeroROC">—</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;" id="devHeroROCSub">profit as % of total cost</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);">
+      <div>
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:3px;">GDV</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:rgba(255,255,255,0.7);line-height:1;" id="devHeroGDV">—</div>
+      </div>
+      <div style="padding-left:20px;border-left:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:3px;">Total Cost</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:rgba(255,255,255,0.7);line-height:1;" id="devHeroCost">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <div class="acc open" id="accDevAcq">
+      <div class="acc-head" onclick="toggleAcc('accDevAcq')"><div><div class="acc-head-title">Acquisition</div><div class="acc-head-sub">Purchase price and costs</div></div><div class="acc-chev">&#8743;</div></div>
+      <div class="acc-body">
+        <div class="fg">
+          <div class="field"><div class="fl">Purchase Price</div><div class="pw"><span class="fp">£</span><input type="number" id="devPurchase" placeholder="1000000" oninput="devCalc()"></div></div>
+          <div class="field"><div class="fl">Acquisition Costs (%)</div><div class="sw"><input type="number" id="devAcqCosts" value="5" step="0.1" oninput="devCalc()"><span class="fss">%</span></div></div>
+          <div class="field"><div class="fl">Contingency (%)</div><div class="sw"><input type="number" id="devContingency" value="5" step="0.5" oninput="devCalc()"><span class="fss">%</span></div></div>
+        </div>
+        <div style="font-size:10px;color:var(--g7);">Acquisition costs include stamp duty, legal fees and survey. Use the Stamp Duty tab to calculate SDLT precisely. Contingency is applied to build cost.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="acc open" id="accDevBuild">
+      <div class="acc-head" onclick="toggleAcc('accDevBuild')"><div><div class="acc-head-title">Build Costs</div><div class="acc-head-sub">Refurbishment or development costs</div></div><div class="acc-chev">&#8743;</div></div>
+      <div class="acc-body">
+        <div class="fg">
+          <div class="field"><div class="fl">Floor Area (sq ft)</div><input type="number" id="devSqft" placeholder="1200" oninput="devCalc()"></div>
+          <div class="field"><div class="fl">Build Cost per sq ft</div><div class="pw"><span class="fp">£</span><input type="number" id="devBuildPerSqft" placeholder="200" oninput="devCalc()"></div></div>
+          <div class="field"><div class="fl">Number of Units</div><input type="number" id="devUnits" value="1" min="1" oninput="devCalc()"></div>
+          <div class="field"><div class="fl">Build Period (months)</div><input type="number" id="devBuildMonths" value="12" oninput="devCalc()"></div>
+          <div class="field"><div class="fl">Finance Rate (% p.a.)</div><div class="sw"><input type="number" id="devFinanceRate" value="7" step="0.1" oninput="devCalc()"><span class="fss">%</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="acc open" id="accDevSale">
+      <div class="acc-head" onclick="toggleAcc('accDevSale')"><div><div class="acc-head-title">Sale and GDV</div><div class="acc-head-sub">Expected sale price and selling costs</div></div><div class="acc-chev">&#8743;</div></div>
+      <div class="acc-body">
+        <div class="fg">
+          <div class="field"><div class="fl">Expected Sale Price / GDV</div><div class="pw"><span class="fp">£</span><input type="number" id="devGDV" placeholder="0" oninput="devCalc()"></div></div>
+          <div class="field"><div class="fl">Sales Period (months)</div><input type="number" id="devSaleMonths" value="4" oninput="devCalc()"></div>
+          <div class="field" style="grid-column:1/-1;"><div class="fl">Selling Fees (% of GDV)</div><div class="sw"><input type="number" id="devSellFees" value="2.5" step="0.1" oninput="devCalc()"><span class="fss">%</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reverse appraisal -->
+  <div class="card">
+    <div class="acc" id="accDevReverse">
+      <div class="acc-head" onclick="toggleAcc('accDevReverse')"><div><div class="acc-head-title">Reverse Appraisal</div><div class="acc-head-sub">Work backwards from target profit to maximum purchase price</div></div><div class="acc-chev">&#8743;</div></div>
+      <div class="acc-body">
+        <div style="font-size:10px;color:var(--g7);margin-bottom:12px;">Enter your target return on cost and GDV to calculate the maximum you should pay for the site. Other inputs are carried through from the main appraisal above.</div>
+        <div class="fg">
+          <div class="field"><div class="fl">Target Return on Cost (%)</div><div class="sw"><input type="number" id="devRevROC" value="20" step="1" oninput="devReverseCalc()"><span class="fss">%</span></div></div>
+          <div class="field"><div class="fl">GDV (if different)</div><div class="pw"><span class="fp">£</span><input type="number" id="devRevGDV" placeholder="Use above" oninput="devReverseCalc()"></div></div>
+        </div>
+        <div id="devReverseResult" style="background:var(--blue-light);border:1px solid var(--border);border-radius:2px;padding:12px;margin-top:4px;">
+          <div style="font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--g7);margin-bottom:4px;">Maximum purchase price</div>
+          <div style="font-family:'Playfair Display',serif;font-size:28px;color:var(--blue);" id="devRevMaxPrice">—</div>
+          <div style="font-size:10px;color:var(--g7);margin-top:3px;" id="devRevNote">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="devResults" class="hidden">
+    <div style="padding:0 16px;margin-bottom:8px;"><div style="font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--g8);">Appraisal Summary</div></div>
+    <div class="result-card"><div class="rc-label">Net Profit</div><div class="rc-value accent" id="devProfit">—</div><div class="rc-sub" id="devProfitSub">—</div></div>
+    <div class="result-grid">
+      <div class="rg-cell"><div class="rg-label">Return on Cost</div><div class="rg-value" id="devROC">—</div><div class="rg-sub">Profit as % of total cost</div></div>
+      <div class="rg-cell"><div class="rg-label">Return on GDV</div><div class="rg-value" id="devROGDV">—</div><div class="rg-sub">Profit as % of sale price</div></div>
+      <div class="rg-cell"><div class="rg-label">Cost per sq ft</div><div class="rg-value" id="devPSF">—</div><div class="rg-sub">Total cost basis</div></div>
+      <div class="rg-cell"><div class="rg-label">GDV per sq ft</div><div class="rg-value accent" id="devGDVPSF">—</div><div class="rg-sub">Sale price basis</div></div>
+      <div class="rg-cell"><div class="rg-label">GDV per unit</div><div class="rg-value" id="devGDVPU">—</div><div class="rg-sub" id="devGDVPUSub">—</div></div>
+      <div class="rg-cell"><div class="rg-label">Finance Cost</div><div class="rg-value" id="devFinCost">—</div><div class="rg-sub">Total borrowing cost</div></div>
+    </div>
+    <div class="result-table" id="devCostBreakdown"></div>
+
+    <!-- sensitivity table -->
+    <div class="card" style="margin-top:4px;">
+      <div class="acc open" id="accDevSens">
+        <div class="acc-head" onclick="toggleAcc('accDevSens')"><div><div class="acc-head-title">Sensitivity Analysis</div><div class="acc-head-sub">Return on cost at different GDV and build cost scenarios</div></div><div class="acc-chev">&#8743;</div></div>
+        <div class="acc-body" style="padding:8px 0 0;overflow-x:auto;"><div id="devSensTable" style="min-width:320px;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disc-box">
+    <div class="disc-box-title">Important notice</div>
+    <p>This development appraisal is provided for indicative purposes only and does not constitute financial, legal or professional valuation advice. Figures may not be 100% accurate and are based solely on the inputs entered. Results do not account for planning risk, market fluctuations, contractor overruns, void periods, taxation, or site-specific issues. You must carry out your own thorough due diligence before committing to any acquisition or development. broker.london, Harding Green and The London Broker accept no liability for any loss arising from use of this tool. Always instruct a qualified development surveyor, solicitor and accountant before proceeding.</p>
+  </div>
+</div>
+
+<div class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">broker<em>.london</em></div>
+    <div class="footer-note">Powered by Harding Green and The London Broker · For information purposes only · Not financial or legal advice</div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmtN=n=>'£'+Math.round(Math.abs(n)).toLocaleString('en-GB');
+const fmtNd=(n,d=0)=>'£'+Math.abs(n).toLocaleString('en-GB',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtP=n=>parseFloat(n.toFixed(2)).toString()+'%';
+
+function showTab(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  $('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+function toggleAcc(id){
+  const el=$(id);el.classList.toggle('open');
+  const s=$(id+'Sub');
+  if(s)s.textContent=el.classList.contains('open')?'Click to collapse':'Click to expand';
+}
+
+// ─── FEE SPLIT ───────────────────────────────────────────
+let fsRefs=[],fsRefId=0;
+let fsLead={name:'',vatReg:true};
+let fsShares=[],fsShareId=0;
+
+function fsSplitPct(){return Math.min(99,Math.max(1,parseFloat($('fsSplitPct').value)||70);}
+function fsCompPct(){return 100-fsSplitPct();}
+
+function fsUpdLeadName(v){fsLead.name=v;fsCalc();}
+function fsUpdShareName(i,v){fsShares[i].name=v;fsCalc();}
+function fsUpdSharePct(i,v){fsShares[i].pct=parseFloat(v)||0;fsCalc();}
+function fsUpdShareFixed(i,v){fsShares[i].fixed=parseFloat(v)||0;fsCalc();}
+
+function fsGetPool(){
+  const sale=parseFloat($('fsSale').value)||0,feePct=parseFloat($('fsFeePct').value)||0;
+  const netFee=sale*feePct/100,grossFee=netFee*1.2;
+  let rem=grossFee;
+  const refDeds=fsRefs.map(r=>{const amt=r.type==='pct'?grossFee*r.pct/100:r.fixed;rem-=amt;return{...r,amt};});
+  return{sale,grossFee,netFee,refDeds,poolGross:rem,poolNet:rem/1.2};
+}
+
+function fsAddRef(){fsRefs.push({id:++fsRefId,name:'',type:'pct',pct:20,fixed:0});fsRenderRefs();fsCalc();}
+function fsRemoveRef(id){fsRefs=fsRefs.filter(r=>r.id!==id);fsRenderRefs();fsCalc();}
+function fsSetRefType(id,t){const r=fsRefs.find(r=>r.id===id);if(!r)return;r.type=t;fsRenderRefs();fsCalc();}
+function fsUpdRef(id,k,v){const r=fsRefs.find(r=>r.id===id);if(!r)return;r[k]=v;fsCalc();}
+
+function fsRenderRefs(){
+  $('fsRefContainer').innerHTML=fsRefs.length===0
+    ?'<div style="font-size:12px;color:var(--g6);text-align:center;padding:4px 0 6px;">No external referrers added</div>'
+    :fsRefs.map((r,i)=>`<div class="ref-block">
+      <div class="block-hdr"><div class="block-ttl">Referrer ${i+1}</div><button class="rm-btn" onclick="fsRemoveRef(${r.id})">Remove</button></div>
+      <div class="field" style="margin-bottom:10px;"><div class="fl">Referrer name</div><input type="text" value="${r.name}" placeholder="e.g. Third Party Referral, Joint Agent" oninput="fsUpdRef(${r.id},'name',this.value)"></div>
+      <div class="fl" style="margin-bottom:5px;">Fee type</div>
+      <div class="type-tog"><button class="tp-btn${r.type==='pct'?' active':''}" onclick="fsSetRefType(${r.id},'pct')">% of gross</button><button class="tp-btn${r.type==='fixed'?' active':''}" onclick="fsSetRefType(${r.id},'fixed')">Fixed £</button></div>
+      ${r.type==='pct'
+        ?`<div class="field"><div class="fl">% of gross fee</div><div class="sw"><input type="number" value="${r.pct}" min="-100" max="100" step="0.5" oninput="fsUpdRef(${r.id},'pct',parseFloat(this.value)||0)"><span class="fss">%</span></div></div>`
+        :`<div class="field"><div class="fl">Fixed amount</div><div class="pw"><span class="fp">£</span><input type="number" value="${r.fixed}" step="100" oninput="fsUpdRef(${r.id},'fixed',parseFloat(this.value)||0)"></div></div>`
+      }
+    </div>`).join('');
+}
+
+function fsAddShare(){fsShares.push({id:++fsShareId,name:'',type:'pct',pct:0,fixed:0,vatReg:true});fsRenderAgent();fsCalc();}
+function fsRemoveShare(id){fsShares=fsShares.filter(a=>a.id!==id);fsRenderAgent();fsCalc();}
+
+function fsRenderAgent(){
+  const {poolNet}=fsGetPool(),saleIn=(parseFloat($('fsSale').value)||0)>0;
+  const sp=fsSplitPct(),cp=fsCompPct();
+  const agentNetPool=poolNet*sp/100;
+  const totalSharingNet=fsShares.reduce((s,a)=>s+(a.type==='pct'?(poolNet*a.pct/100):(a.fixed||0)),0);
+  const leadNet=agentNetPool-totalSharingNet,overAllocated=leadNet<-0.5;
+
+  const sharesHTML=fsShares.map((a,i)=>{
+    const earnNet=a.type==='pct'?(poolNet*a.pct/100):(a.fixed||0);
+    return`<div class="share-block">
+      <div class="block-hdr" style="margin-bottom:10px;"><div class="block-ttl">Agent ${i+2}</div><button class="rm-btn" onclick="fsRemoveShare(${a.id})">Remove</button></div>
+      <div class="field" style="margin-bottom:10px;"><div class="fl">Agent ${i+2} Name</div><input type="text" id="fsn-${a.id}" value="${a.name||''}" placeholder="Enter agent name" oninput="fsUpdShareName(${i},this.value)"></div>
+      <div class="fl" style="margin-bottom:5px;">Allocation type</div>
+      <div class="type-tog"><button class="tp-btn${a.type==='pct'?' active':''}" onclick="fsShares[${i}].type='pct';fsRenderAgent();fsCalc()">% of net fee</button><button class="tp-btn${a.type==='fixed'?' active':''}" onclick="fsShares[${i}].type='fixed';fsRenderAgent();fsCalc()">Fixed £ net</button></div>
+      ${a.type==='pct'
+        ?`<div class="field" style="margin-bottom:10px;"><div class="fl">% of net fee</div><div class="sw"><input type="number" id="fsp-${a.id}" value="${a.pct||0}" min="0" max="${sp}" step="0.5" oninput="fsUpdSharePct(${i},this.value)"><span class="fss">%</span></div><div id="fspe-${a.id}" style="font-size:11px;color:var(--g7);margin-top:3px;">${saleIn?'= '+fmtN(poolNet*(a.pct||0)/100)+' net':''}</div></div>`
+        :`<div class="field" style="margin-bottom:10px;"><div class="fl">Fixed net fee (ex VAT)</div><div class="pw"><span class="fp">£</span><input type="number" id="fsf-${a.id}" value="${a.fixed||0}" step="100" oninput="fsUpdShareFixed(${i},this.value)"></div></div>`
+      }
+      <div class="chk-row" style="margin-bottom:${!a.vatReg?'7px':'0'};" onclick="fsShares[${i}].vatReg=!fsShares[${i}].vatReg;fsRenderAgent();fsCalc()">
+        <div class="chk-box${a.vatReg?' on':''}"><svg class="chk-tick" viewBox="0 0 8 8" fill="none"><path d="M1 4l2.5 2.5L7 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="chk-label">VAT registered</span>
+      </div>
+      ${!a.vatReg?`<div class="vat-notice">Not VAT registered — paid ${saleIn?fmtN(earnNet)+' ':''} net only.</div>`:''}
+    </div>`;
+  }).join('');
+
+  $('fsAgentBody').innerHTML=`
+    <div class="fsec" style="margin-bottom:14px;">Agent 1 receives the balance of the ${sp}% agent split automatically. Add further agents below if the fee is being shared within the brokerage.</div>
+    <div class="field" style="margin-bottom:10px;"><div class="fl">Agent 1 Name</div><input type="text" id="fsLeadName" value="${fsLead.name||''}" placeholder="Enter Agent 1 name here" oninput="fsUpdLeadName(this.value)"></div>
+    <div class="remaining-box">
+      <div class="remaining-label">Agent 1 receives (balance of ${sp}% split)</div>
+      <div id="fsLeadRemAmt" class="remaining-amt${overAllocated?' warn':''}">${saleIn?fmtN(Math.max(0,leadNet)):'Enter deal details above'}</div>
+      <div id="fsLeadRemSub" class="remaining-sub">${saleIn&&agentNetPool>0?'net ex VAT · '+fmtP(Math.max(0,leadNet)/poolNet*100)+' of net fee':'—'}</div>
+    </div>
+    <div class="chk-row" style="margin-bottom:${!fsLead.vatReg?'7px':'12px'};" onclick="fsLead.vatReg=!fsLead.vatReg;fsRenderAgent();fsCalc()">
+      <div class="chk-box${fsLead.vatReg?' on':''}"><svg class="chk-tick" viewBox="0 0 8 8" fill="none"><path d="M1 4l2.5 2.5L7 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="chk-label">Agent 1 is VAT registered</span>
+    </div>
+    ${!fsLead.vatReg?`<div class="vat-notice" style="margin-bottom:12px;">Not VAT registered — paid net only. VAT element retained by the company.</div>`:''}
+    ${fsShares.length>0?`<div class="fdiv"></div>${sharesHTML}`:''}
+    <div id="fsOverWarn" style="display:${overAllocated?'block':'none'};background:var(--warn-dim);border:1px solid rgba(180,125,117,0.25);border-radius:2px;padding:8px 12px;font-size:10px;color:var(--warn);margin-bottom:10px;">Agent allocations exceed the ${sp}% brokerage split — please reduce</div>
+    <div class="fdiv"></div>
+    <button class="add-btn" onclick="fsAddShare()">+ Add another agent</button>`;
+}
+
+function fsUpdateDisplays(poolNet,agentNetPool,sp){
+  const totalSharingNet=fsShares.reduce((s,a)=>s+(a.type==='pct'?(poolNet*a.pct/100):(a.fixed||0)),0);
+  const leadNet=agentNetPool-totalSharingNet,over=leadNet<-0.5;
+  const ra=$('fsLeadRemAmt'),rs=$('fsLeadRemSub');
+  if(ra){ra.textContent=poolNet>0?fmtN(Math.max(0,leadNet)):'Enter deal details above';ra.className='remaining-amt'+(over?' warn':'');}
+  if(rs)rs.textContent=poolNet>0&&agentNetPool>0?'net ex VAT · '+fmtP(Math.max(0,leadNet)/poolNet*100)+' of net fee':'—';
+  fsShares.forEach((a,i)=>{const d=$('fspe-'+a.id);if(d)d.textContent=poolNet>0?'= '+fmtN(poolNet*(a.pct||0)/100)+' net':'';});
+  const ow=$('fsOverWarn');if(ow)ow.style.display=over?'block':'none';
+  const sc=$('fsSplitCompPct');if(sc)sc.textContent=100-sp;
+}
+
+function fsCalc(){
+  const {sale,grossFee,netFee,refDeds,poolGross,poolNet}=fsGetPool();
+  const sp=fsSplitPct(),cp=fsCompPct();
+  const sc=$('fsSplitCompPct');if(sc)sc.textContent=cp;
+
+  if(sale===0){
+    $('fsResultsWrap').classList.add('hidden');
+    fsUpdateDisplays(0,0,sp);
+    const td=$('fsTierDisplay');if(td)td.innerHTML='';
+    $('fsHeroFee').textContent='—';$('fsHeroAgent').textContent='—';$('fsHeroHG').textContent='—';$('fsHeroDeducted').textContent='—';
+    return;
+  }
+
+  const agentNetPool=poolNet*sp/100,hgNet=poolNet*cp/100,hgGross=hgNet*1.2;
+  const sharingResults=fsShares.map(a=>{const earnNet=a.type==='pct'?(poolNet*a.pct/100):(a.fixed||0);return{...a,earnNet,earnGross:a.vatReg?earnNet*1.2:earnNet};});
+  const totalSharingNet=sharingResults.reduce((s,a)=>s+a.earnNet,0);
+  const leadNet=agentNetPool-totalSharingNet,leadGross=fsLead.vatReg?leadNet*1.2:leadNet,overAllocated=leadNet<-0.5;
+  const totalAgentNet=Math.max(0,leadNet)+totalSharingNet;
+  const totalDeducted=refDeds.reduce((s,r)=>s+(r.amt>0?r.amt:0),0);
+
+  fsUpdateDisplays(poolNet,agentNetPool,sp);
+
+  const td=$('fsTierDisplay');
+  if(td)td.innerHTML=`<div style="background:var(--blue-light);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-top:4px;">
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="color:var(--g8);">Net fee (ex VAT)</span><span style="font-family:'Playfair Display',serif;font-size:16px;">${fmtN(poolNet)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--g7);"><span>Agents (${sp}%)</span><span>${fmtN(agentNetPool)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--g7);margin-top:2px;"><span>Company (${cp}%)</span><span>${fmtN(hgNet)}</span></div>
+  </div>`;
+
+  $('fsHeroFee').textContent=fmtN(poolNet);
+  $('fsHeroFeeSub').textContent='ex VAT · gross inc. VAT: '+fmtN(poolGross);
+  $('fsHeroAgent').textContent=fmtN(totalAgentNet);
+  $('fsHeroAgentSub').textContent=sp+'% brokerage split';
+  $('fsHeroHG').textContent=fmtN(hgNet);
+  $('fsHeroDeducted').textContent=fmtN(totalDeducted>0?totalDeducted:0);
+
+  let html='';
+  html+=`<div class="fee-summary"><div class="fs-row gross-row"><div><div class="fs-label white" style="font-size:9px;letter-spacing:0.1em;text-transform:uppercase;">Agency fee${$('fsProp').value?' — '+$('fsProp').value:''}</div></div><div class="fs-right"><div class="fs-net white gross-sz">${fmtN(netFee)}<span style="font-size:11px;"> net</span></div><div class="fs-vat white">+ VAT ${fmtN(netFee*0.2)} · Gross ${fmtN(grossFee)}</div></div></div>`;
+  refDeds.forEach(r=>{const isNeg=r.amt<0,name=r.name||'External Referrer';html+=`<div class="fs-row deduct-row"><div class="fs-label">${isNeg?'Add back':'Less'}: ${name}${r.type==='pct'?' ('+fmtP(r.pct)+')':''}</div><div class="fs-right"><div class="fs-net warn">${isNeg?'+ ':' - '}${fmtN(Math.abs(r.amt))}</div></div></div>`;});
+  html+=`<div class="fs-row pool-row"><div><div class="fs-label pool">Net fee (ex VAT)</div><div style="font-size:10px;color:var(--g7);margin-top:1px;">${sp}% agents · ${cp}% company · inc. VAT: ${fmtN(poolGross)}</div></div><div class="fs-right"><div class="fs-net" style="font-size:19px;">${fmtN(poolNet)}</div></div></div></div>`;
+  html+=`<div class="vpill${overAllocated?' warn':''}"><div class="vdot"></div><span>${overAllocated?`Allocations exceed ${sp}% brokerage split`:`Verified — company receives ${fmtN(hgNet)} net (${cp}%)`}</span></div>`;
+
+  const allCards=[
+    {name:fsLead.name||'Agent 1',earnNet:Math.max(0,leadNet),earnGross:Math.max(0,leadGross),vatReg:fsLead.vatReg,pct:poolNet>0?Math.max(0,leadNet)/poolNet*100:0},
+    ...sharingResults.map((a,i)=>({name:a.name||`Agent ${i+2}`,earnNet:a.earnNet,earnGross:a.earnGross,vatReg:a.vatReg,pct:poolNet>0?a.earnNet/poolNet*100:0}))
+  ];
+  allCards.forEach(ag=>{html+=`<div class="agent-card"><div class="ac-name">${ag.name}</div><div class="ac-net-label">Net fee (ex VAT)</div><div class="ac-net">${fmtN(ag.earnNet)}</div><div class="ac-pct-of">${fmtP(ag.pct)} of net fee</div><div class="ac-vat-row">${ag.vatReg?`<div class="ac-vat-label">VAT element (20%)</div><div class="ac-vat-amt">+ ${fmtN(ag.earnNet*0.2)} · Invoice: ${fmtN(ag.earnGross)}</div>`:`<div class="ac-no-vat">Not VAT registered — net only</div>`}</div></div>`;});
+  html+=`<div class="hg-card"><div class="hg-label">Company share</div><div class="hg-sub">Balance after agent allocations · ${cp}% of net fee</div><div class="hg-row"><div><div class="hg-net">${fmtN(hgNet)}</div><div class="hg-vat">net ex VAT · inc. VAT: ${fmtN(hgGross)}</div></div><div><div class="hg-pct">${cp}%</div><div class="hg-pct-sub">of net fee</div></div></div></div>`;
+  html+=`<div style="margin:0 16px 14px;font-size:10px;line-height:1.6;color:var(--g7);">All figures shown net (ex VAT). VAT-registered agents invoice the company for the VAT element separately. All figures rounded to nearest £.</div>`;
+  $('fsResultsInner').innerHTML=html;
+  $('fsResultsWrap').classList.remove('hidden');
+}
+
+// ─── SDLT ────────────────────────────────────────────────
+const SDLT_BANDS={
+  standard:[{from:0,to:125000,rate:0},{from:125000,to:250000,rate:0.02},{from:250000,to:925000,rate:0.05},{from:925000,to:1500000,rate:0.10},{from:1500000,to:Infinity,rate:0.12}],
+  ftb:[{from:0,to:300000,rate:0},{from:300000,to:500000,rate:0.05}],
+  additional:[{from:0,to:125000,rate:0.05},{from:125000,to:250000,rate:0.07},{from:250000,to:925000,rate:0.10},{from:925000,to:1500000,rate:0.15},{from:1500000,to:Infinity,rate:0.17}],
+  company_invest:[{from:0,to:125000,rate:0.05},{from:125000,to:250000,rate:0.07},{from:250000,to:925000,rate:0.10},{from:925000,to:1500000,rate:0.15},{from:1500000,to:Infinity,rate:0.17}],
+};
+const SDLT_LABELS={
+  standard:['£0 to £125,000','£125,001 to £250,000','£250,001 to £925,000','£925,001 to £1,500,000','Over £1,500,000'],
+  ftb:['£0 to £300,000','£300,001 to £500,000'],
+  additional:['£0 to £125,000','£125,001 to £250,000','£250,001 to £925,000','£925,001 to £1,500,000','Over £1,500,000'],
+  company_invest:['£0 to £125,000','£125,001 to £250,000','£250,001 to £925,000','£925,001 to £1,500,000','Over £1,500,000'],
+};
+let sdltBuyerType='ftb';
+function sdltPct(r){return(r*100%1===0?(r*100).toFixed(0):(r*100).toFixed(1))+'%';}
+function sdltIsNonRes(){return document.getElementById('sdltChkNonRes').checked;}
+function sdltIsReplacing(){return document.getElementById('sdltChkReplacing').checked;}
+function sdltIsLeasehold(){return document.getElementById('sdltChkLeasehold').checked;}
+
+function sdltCalcTax(price,type){
+  const surcharge=sdltIsNonRes()?0.02:0;
+  if(type==='company_ated'&&price>500000){
+    const rate=0.17+surcharge;
+    return{total:price*rate,detail:[{label:surcharge>0?'Entire price (17% + 2% non-resident surcharge)':'Entire price (17% flat — non-qualifying use)',rate,tax:price*rate}],flatRate:true};
+  }
+  let bandKey=type;
+  if(type==='additional'&&sdltIsReplacing())bandKey='standard';
+  if(type==='ftb'&&price>500000)bandKey='standard';
+  if(type==='company_ated')bandKey='company_invest';
+  const bands=SDLT_BANDS[bandKey],labels=SDLT_LABELS[bandKey];
+  let total=0;const detail=[];
+  bands.forEach((band,i)=>{
+    if(price<=band.from)return;
+    const upper=band.to===Infinity?price:Math.min(price,band.to);
+    const taxable=upper-band.from;if(taxable<=0)return;
+    const rate=band.rate+surcharge,tax=taxable*rate;
+    total+=tax;detail.push({label:labels[i],rate,tax});
+  });
+  return{total,detail,flatRate:false};
+}
+
+function sdltRender(){
+  const raw=document.getElementById('sdltPriceInput').value.replace(/[^0-9]/g,'');
+  const price=parseInt(raw,10)||0;
+  const atRow=$('sdltAtedRow');
+  if(atRow)atRow.style.display=(sdltBuyerType==='company_invest'||sdltBuyerType==='company_ated')?'block':'none';
+  [['sdltNoteCompanyInvest',sdltBuyerType==='company_invest'],
+   ['sdltNoteCompanyAted',sdltBuyerType==='company_ated'],
+   ['sdltNoteNonRes',sdltIsNonRes()],
+   ['sdltNoteReplacing',sdltIsReplacing()&&sdltBuyerType==='additional'],
+   ['sdltNoteLeasehold',sdltIsLeasehold()]
+  ].forEach(([id,show])=>{const el=$(id);if(el)el.style.display=show?'block':'none';});
+  const repLbl=$('sdltLblReplacing');
+  if(repLbl){repLbl.style.opacity=sdltBuyerType==='additional'?'1':'0.4';repLbl.style.pointerEvents=sdltBuyerType==='additional'?'auto':'none';if(sdltBuyerType!=='additional')document.getElementById('sdltChkReplacing').checked=false;}
+  if(!price){
+    $('sdltHeroTotal').textContent='—';$('sdltHeroSub').textContent='';$('sdltHeroRate').textContent='—';$('sdltHeroRateSub').textContent='';
+    $('sdltBreakdownWrap').innerHTML='<div style="background:var(--white);border:1px solid var(--border);padding:28px 16px;text-align:center;font-size:12px;color:var(--g6);letter-spacing:0.08em;text-transform:uppercase;">Enter a purchase price above to calculate</div>';
+    return;
+  }
+  const{total,detail,flatRate}=sdltCalcTax(price,sdltBuyerType);
+  const eff=((total/price)*100).toFixed(2);
+  const surchargeAmt=sdltIsNonRes()&&!flatRate?price*0.02:0;
+  $('sdltHeroTotal').textContent=fmtN(total)+(flatRate?` (${sdltPct(detail[0].rate)} flat)`:'');
+  $('sdltHeroSub').textContent=surchargeAmt>0?`Includes ${fmtN(surchargeAmt)} non-resident surcharge`:`On a purchase of ${fmtN(price)}`;
+  $('sdltHeroRate').textContent=eff+'%';
+  $('sdltHeroRateSub').textContent='On purchase of '+fmtN(price);
+  const rows=detail.map(d=>`<tr>
+    <td style="padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px;color:var(--g8);">${d.label}</td>
+    <td style="padding:9px 12px;border-bottom:1px solid var(--border);font-size:11px;color:var(--g7);">${sdltPct(d.rate)}</td>
+    <td style="padding:9px 12px;border-bottom:1px solid var(--border);text-align:right;font-size:13px;color:var(--blue);">${fmtN(d.tax)}</td>
+  </tr>`).join('');
+  const lhNote=sdltIsLeasehold()?`<tr><td colspan="3" style="padding:10px 12px;font-size:10px;color:var(--g7);font-style:italic;">New leasehold: covers lease premium only. Solicitor should calculate NPV element separately.</td></tr>`:'';
+  $('sdltBreakdownWrap').innerHTML=`<table style="width:100%;border-collapse:collapse;background:var(--white);border:1px solid var(--border);">
+    <thead><tr>
+      <th style="font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--g7);text-align:left;padding:8px 12px;border-bottom:1.5px solid var(--blue);font-weight:400;">Rate band</th>
+      <th style="font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--g7);text-align:left;padding:8px 12px;border-bottom:1.5px solid var(--blue);font-weight:400;">Rate</th>
+      <th style="font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--g7);text-align:right;padding:8px 12px;border-bottom:1.5px solid var(--blue);font-weight:400;">Tax</th>
+    </tr></thead>
+    <tbody>${rows}${lhNote}
+      <tr style="border-top:2px solid var(--blue);">
+        <td style="padding:10px 12px;font-size:13px;font-weight:500;color:var(--blue);">Total SDLT</td>
+        <td style="padding:10px 12px;font-size:11px;color:var(--g7);">${eff}% effective</td>
+        <td style="padding:10px 12px;text-align:right;font-family:'Playfair Display',serif;font-size:18px;color:var(--blue);">${fmtN(total)}</td>
+      </tr>
+    </tbody>
+  </table>`;
+}
+
+function sdltCopy(){
+  const raw=document.getElementById('sdltPriceInput').value.replace(/[^0-9]/g,'');
+  const price=parseInt(raw,10)||0;
+  if(!price){alert('Please enter a purchase price first.');return;}
+  const typeLabels={ftb:'First-time buyer',standard:'Moving home',additional:'Additional property',company_invest:'Company investment/rental',company_ated:'Company ATED/non-qualifying'};
+  const{total,detail}=sdltCalcTax(price,sdltBuyerType);
+  const eff=((total/price)*100).toFixed(2);
+  const flags=[];
+  if(sdltIsNonRes())flags.push('Non-UK resident (+2%)');
+  if(sdltIsReplacing())flags.push('Replacing main residence');
+  if(sdltIsLeasehold())flags.push('New leasehold property');
+  let t='STAMP DUTY LAND TAX\nbroker.london\n';
+  t+='--------------------------------------------------\n';
+  t+=`Purchase price:  ${fmtN(price)}\nBuyer type:      ${typeLabels[sdltBuyerType]}\n`;
+  if(flags.length)t+=`Circumstances:   ${flags.join(', ')}\n`;
+  t+='Jurisdiction:    England & Northern Ireland\nRates as of:     1 April 2025\n';
+  t+='--------------------------------------------------\n';
+  detail.forEach(d=>{t+=`${d.label.padEnd(36)} ${sdltPct(d.rate).padStart(5)}   ${fmtN(d.tax)}\n`;});
+  t+='--------------------------------------------------\n';
+  t+=`Total SDLT:      ${fmtN(total)}\nEffective rate:  ${eff}%\n`;
+  t+='\nIndicative only. Seek professional advice before exchanging contracts.';
+  const con=$('sdltCopyConfirm');
+  const fb=()=>{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).catch(fb);}else{fb();}
+  con.style.opacity='1';setTimeout(()=>{con.style.opacity='0';},2500);
+}
+
+document.getElementById('sdltPriceInput').addEventListener('input',function(){
+  const raw=this.value.replace(/[^0-9]/g,'');
+  const num=parseInt(raw,10);
+  this.value=num?num.toLocaleString('en-GB'):'';
+  sdltRender();
+});
+document.querySelectorAll('.sdlt-type-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.sdlt-type-btn').forEach(b=>{b.style.background='var(--white)';b.style.color='var(--g7)';});
+    btn.style.background='var(--blue)';btn.style.color='var(--white)';
+    sdltBuyerType=btn.dataset.type;sdltRender();
+  });
+});
+['sdltChkNonRes','sdltChkReplacing','sdltChkLeasehold'].forEach(id=>{
+  const el=document.getElementById(id);if(el)el.addEventListener('change',sdltRender);
+});
+
+// ─── MORTGAGE ─────────────────────────────────────────────
+function mortCalc(){
+  const amount=parseFloat($('mAmount').value)||0,rate=parseFloat($('mRate').value)||0,term=parseFloat($('mTerm').value)||0,type=$('mType').value;
+  if(amount===0||term===0){$('mortResults').classList.add('hidden');$('mHeroMonthly').textContent='—';$('mHeroInterest').textContent='—';$('mHeroTotal').textContent='—';$('mHeroAnnual').textContent='—';return;}
+  const mr=rate/100/12;
+  let monthly=type==='interest'?amount*mr:(mr===0?amount/(term*12):amount*(mr*Math.pow(1+mr,term*12))/(Math.pow(1+mr,term*12)-1));
+  const totalRepaid=type==='interest'?amount+monthly*term*12:monthly*term*12;
+  const totalInterest=totalRepaid-amount;
+  $('mortMonthly').textContent=fmtNd(monthly,0);
+  $('mortMonthlySub').textContent=(type==='interest'?'Interest only':'Repayment')+' · '+rate+'% over '+term+' years';
+  $('mortTotal').textContent=fmtN(totalRepaid);
+  $('mortTotalSub').textContent=type==='interest'?'Capital still owed at end':'Full repayment';
+  $('mortInterest').textContent=fmtN(totalInterest);
+  $('mortInterestPct').textContent=(totalInterest/amount*100).toFixed(1)+'% of loan amount';
+  $('mortAnnual').textContent=fmtNd(monthly*12,0);
+  $('mortIntPct').textContent=(totalInterest/amount*100).toFixed(1)+'%';
+  const scenarios=[2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5];
+  let sHTML=`<div class="rt-row header"><span>Interest Rate</span><span>Monthly Payment</span></div>`;
+  scenarios.forEach(r=>{
+    const mr2=r/100/12,pmt=type==='interest'?amount*mr2:(mr2===0?amount/(term*12):amount*(mr2*Math.pow(1+mr2,term*12))/(Math.pow(1+mr2,term*12)-1));
+    const cur=Math.abs(r-rate)<0.005;
+    sHTML+=`<div class="rt-row${cur?' total':''}"><span class="rt-label">${r.toFixed(1)}%${cur?' (current)':''}</span><span class="rt-value${cur?' accent':''}">${fmtNd(pmt,0)}</span></div>`;
+  });
+  $('mortScenarios').innerHTML=sHTML;
+  $('mHeroMonthly').textContent=fmtNd(monthly,0);
+  $('mHeroMonthlySub').textContent=(type==='interest'?'Interest only':'Repayment')+' · '+rate+'% · '+term+' yrs';
+  $('mHeroInterest').textContent=fmtN(totalInterest);
+  $('mHeroInterestSub').textContent=(totalInterest/amount*100).toFixed(1)+'% of loan amount';
+  $('mHeroTotal').textContent=fmtN(totalRepaid);
+  $('mHeroAnnual').textContent=fmtNd(monthly*12,0)+' per year';
+  $('mortResults').classList.remove('hidden');
+}
+
+// ─── LEASE EXTENSION ──────────────────────────────────────
+function leaseCalcPremium(fv,lv,yr,gr,cap,defRate){
+  const grCap=cap>0?gr*(1-Math.pow(1+cap/100,-yr))/(cap/100):gr*yr;
+  const reversion=fv/Math.pow(1+defRate/100,yr);
+  const marriageVal=yr<80?Math.max(0,(fv-lv)*0.5):0;
+  return{grCap,reversion,marriageVal,premium:grCap+reversion+marriageVal};
+}
+
+function leaseCalc(){
+  const fv=parseFloat($('lFreeholdVal').value)||0,lv=parseFloat($('lLeaseVal').value)||0;
+  const yr=parseFloat($('lYearsLeft').value)||0,gr=parseFloat($('lGroundRent').value)||0;
+  const cap=parseFloat($('lCapRate').value)||5,defRate=parseFloat($('lDefRate').value)||5;
+  if(fv===0||lv===0){$('leaseResults').classList.add('hidden');return;}
+
+  const {grCap,reversion,marriageVal,premium}=leaseCalcPremium(fv,lv,yr,gr,cap,defRate);
+  const {premium:premiumNextYr}=leaseCalcPremium(fv,lv,yr-1,gr,cap,defRate);
+  const delayCost=premiumNextYr-premium;
+
+  $('lPremium').textContent=fmtN(premium);
+  $('lMarriage').textContent=yr>=80?'N/A — lease over 80 years':fmtN(marriageVal);
+  $('lGRCap').textContent=fmtN(grCap);
+  $('lReversion').textContent=fmtN(reversion);
+  $('lUplift').textContent=fmtN(fv-lv);
+  $('lDelayCost').textContent=delayCost>0?fmtN(delayCost):'N/A';
+  $('lDelaySub').textContent=delayCost>0?'Estimated additional premium if extension delayed one year':'Premium decreases with time — extend as soon as possible';
+
+  // mortgage lender warning
+  const mwarn=$('lMortgageWarn');
+  if(yr<70){mwarn.classList.remove('hidden');}else{mwarn.classList.add('hidden');}
+
+  // comparison table
+  const compYears=[90,85,80,75,70,65,60,55,50];
+  let tHTML=`<div class="rt-row header"><span>Years Remaining</span><span>Est. Premium</span></div>`;
+  compYears.forEach(y=>{
+    const {premium:p}=leaseCalcPremium(fv,lv,y,gr,cap,defRate);
+    const cur=y===yr;
+    tHTML+=`<div class="rt-row${cur?' total':''}"><span class="rt-label">${y} years${cur?' (current)':''}</span><span class="rt-value${cur?' accent':''}">${fmtN(p)}</span></div>`;
+  });
+  $('leaseCompTable').innerHTML=tHTML;
+
+  $('lHeroPremium').textContent=fmtN(premium);
+  $('lHeroPremiumSub').textContent='indicative · 90 years added to '+yr+' remaining';
+  $('lHeroUplift').textContent=fmtN(fv-lv);
+  $('lHeroMarriage').textContent=yr>=80?'N/A':fmtN(marriageVal);
+  $('lHeroYears').textContent=yr+(yr===1?' year':' years');
+  $('leaseResults').classList.remove('hidden');
+}
+
+// ─── DEVELOPMENT APPRAISAL ────────────────────────────────
+function devGetInputs(){
+  return{
+    purchase:parseFloat($('devPurchase').value)||0,
+    acqPct:parseFloat($('devAcqCosts').value)||0,
+    contingencyPct:parseFloat($('devContingency').value)||0,
+    sqft:parseFloat($('devSqft').value)||0,
+    bpsf:parseFloat($('devBuildPerSqft').value)||0,
+    units:Math.max(1,parseInt($('devUnits').value)||1),
+    buildMo:parseFloat($('devBuildMonths').value)||0,
+    finRate:parseFloat($('devFinanceRate').value)||0,
+    gdv:parseFloat($('devGDV').value)||0,
+    saleMo:parseFloat($('devSaleMonths').value)||0,
+    sellPct:parseFloat($('devSellFees').value)||0,
+  };
+}
+
+function devComputeAppraisal(inp){
+  const {purchase,acqPct,contingencyPct,sqft,bpsf,buildMo,finRate,gdv,saleMo,sellPct}=inp;
+  const acqCosts=purchase*acqPct/100,totalAcq=purchase+acqCosts;
+  const buildCostBase=sqft*bpsf,contingency=buildCostBase*contingencyPct/100,buildCost=buildCostBase+contingency;
+  const financeCost=(purchase*(finRate/100/12)*buildMo)+(buildCost*(finRate/100/12)*(buildMo/2))+(totalAcq+buildCost)*(finRate/100/12)*saleMo;
+  const sellFees=gdv*sellPct/100,totalCost=totalAcq+buildCost+financeCost+sellFees;
+  const profit=gdv-totalCost,roc=totalCost>0?profit/totalCost*100:0,rogdv=gdv>0?profit/gdv*100:0;
+  return{acqCosts,totalAcq,buildCostBase,contingency,buildCost,financeCost,sellFees,totalCost,profit,roc,rogdv};
+}
+
+function devCalc(){
+  const inp=devGetInputs();
+  if(inp.purchase===0&&inp.gdv===0){$('devResults').classList.add('hidden');return;}
+  const r=devComputeAppraisal(inp);
+
+  $('devProfit').textContent=fmtN(r.profit);
+  $('devProfit').className='rc-value'+(r.profit>=0?' accent':' warn');
+  $('devProfitSub').textContent='Return on cost: '+r.roc.toFixed(1)+'% · Return on GDV: '+r.rogdv.toFixed(1)+'%'+(r.roc<15&&r.profit>0?' · Below typical 15% viability threshold':'');
+  $('devROC').textContent=r.roc.toFixed(1)+'%';
+  $('devROC').className='rg-value'+(r.roc>=15?'':' warn');
+  $('devROGDV').textContent=r.rogdv.toFixed(1)+'%';
+  $('devPSF').textContent=inp.sqft>0?'£'+Math.round(r.totalCost/inp.sqft).toLocaleString('en-GB'):'—';
+  $('devGDVPSF').textContent=inp.sqft>0?'£'+Math.round(inp.gdv/inp.sqft).toLocaleString('en-GB'):'—';
+  $('devGDVPU').textContent=inp.units>0?'£'+Math.round(inp.gdv/inp.units).toLocaleString('en-GB'):'—';
+  $('devGDVPUSub').textContent=inp.units>1?inp.units+' units':'Single unit';
+  $('devFinCost').textContent=fmtN(r.financeCost);
+
+  const rows=[
+    ['Purchase price',fmtN(inp.purchase),''],
+    ['Acquisition costs ('+inp.acqPct+'%)',fmtN(r.acqCosts),'SDLT, legal, survey'],
+    ['Build cost (base)',fmtN(r.buildCostBase),inp.sqft>0?inp.sqft.toLocaleString('en-GB')+' sq ft at £'+inp.bpsf+'/sq ft':''],
+    ['Contingency ('+inp.contingencyPct+'%)',fmtN(r.contingency),'Applied to build cost'],
+    ['Finance cost',fmtN(r.financeCost),inp.buildMo+' month build + '+inp.saleMo+' month sale at '+inp.finRate+'% p.a.'],
+    ['Selling fees ('+inp.sellPct+'%)',fmtN(r.sellFees),''],
+    ['Total cost',fmtN(r.totalCost),''],
+    ['GDV',fmtN(inp.gdv),'Expected sale price'],
+    ['Net profit',fmtN(r.profit),'']
+  ];
+  let tHTML=`<div class="rt-row header"><span>Item</span><span>Amount</span></div>`;
+  rows.forEach(row=>{
+    const isTotal=row[0]==='Total cost'||row[0]==='Net profit';
+    tHTML+=`<div class="rt-row${isTotal?' total':''}"><div><span class="rt-label">${row[0]}</span>${row[2]?`<div style="font-size:9px;color:var(--g6);margin-top:1px;">${row[2]}</div>`:''}</div><span class="rt-value${row[0]==='Net profit'?(r.profit>=0?' accent':' warn'):''}">${row[1]}</span></div>`;
+  });
+  $('devCostBreakdown').innerHTML=tHTML;
+
+  // sensitivity table
+  const gdvMults=[0.85,0.90,0.95,1.0,1.05,1.10,1.15];
+  const bpsfMults=[0.85,0.90,0.95,1.0,1.05,1.10,1.15];
+  const cellStyle='padding:6px 5px;text-align:center;';
+  const hdrCell='padding:6px 5px;background:var(--blue);color:var(--blue-mid);font-size:8px;text-align:center;';
+  const rowHdr='padding:6px 8px;background:var(--blue-light);font-size:8px;color:var(--g7);';
+  const corner='padding:6px 8px;background:var(--blue);color:rgba(255,255,255,0.5);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;';
+  let sensRows='';
+  bpsfMults.forEach(function(b){
+    let cells='';
+    gdvMults.forEach(function(g){
+      const testInp=Object.assign({},inp,{gdv:inp.gdv*g,bpsf:inp.bpsf*b});
+      const res=devComputeAppraisal(testInp);
+      const roc=res.roc;
+      const isBase=(g===1.0&&b===1.0);
+      const bg=roc>=20?'#e6f4e6':roc>=15?'#f0f7e6':roc>=10?'#fdf6e8':roc>=0?'#fdf0ed':'#f7e6e6';
+      const col=roc>=15?'#2a6b2a':roc>=0?'#7a5a20':'#8b2a2a';
+      const bgFinal=isBase?'var(--blue)':bg;
+      const colFinal=isBase?'var(--white)':col;
+      const fw=isBase?'500':'400';
+      cells+='<td style="'+cellStyle+'background:'+bgFinal+';color:'+colFinal+';font-weight:'+fw+';">'+roc.toFixed(0)+'%</td>';
+    });
+    sensRows+='<tr><td style="'+rowHdr+'">'+Math.round(b*100)+'%</td>'+cells+'</tr>';
+  });
+  let hdrCells='';
+  gdvMults.forEach(function(g){hdrCells+='<td style="'+hdrCell+'">'+Math.round(g*100)+'%</td>';});
+  const sensHTML='<table style="width:100%;border-collapse:collapse;font-size:10px;"><thead><tr><td style="'+corner+'">ROC / GDV vs Build</td>'+hdrCells+'</tr></thead><tbody>'+sensRows+'</tbody></table><div style="padding:8px 12px;font-size:9px;color:var(--g7);">Rows = build cost as % of base. Columns = GDV as % of base. Green = above 15% viability.</div>';
+  $('devSensTable').innerHTML=sensHTML;
+
+  $('devHeroProfit').textContent=fmtN(r.profit);
+  $('devHeroProfit').style.color=r.profit>=0?'var(--accent)':'var(--warn)';
+  $('devHeroProfitSub').textContent=r.profit>=0?'Return on cost: '+r.roc.toFixed(1)+'%':'Loss';
+  $('devHeroROC').textContent=r.roc.toFixed(1)+'%';
+  $('devHeroROC').style.color=r.roc>=15?'var(--white)':'var(--warn)';
+  $('devHeroROCSub').textContent=r.roc>=15?'Above 15% viability threshold':'Below 15% viability threshold';
+  $('devHeroGDV').textContent=inp.gdv>0?fmtN(inp.gdv):'—';
+  $('devHeroCost').textContent=fmtN(r.totalCost);
+  $('devResults').classList.remove('hidden');
+
+  devReverseCalc();
+}
+
+function devReverseCalc(){
+  const inp=devGetInputs();
+  const targetROC=(parseFloat($('devRevROC').value)||20)/100;
+  const gdvOverride=parseFloat($('devRevGDV').value)||0;
+  const gdv=gdvOverride||inp.gdv;
+  if(gdv===0){$('devRevMaxPrice').textContent='—';$('devRevNote').textContent='Enter a GDV above to calculate';return;}
+
+  // max purchase = solve iteratively: profit/totalCost = targetROC
+  // profit = gdv - totalCost; totalCost = (P + P*acqPct/100 + buildCost + finance(P) + sellFees)
+  // simplified: totalCost_target = gdv / (1+targetROC)
+  const acqMult=1+inp.acqPct/100;
+  const buildCostBase=inp.sqft*inp.bpsf;
+  const contingency=buildCostBase*inp.contingencyPct/100;
+  const buildCost=buildCostBase+contingency;
+  const sellFees=gdv*inp.sellPct/100;
+  const totalCostTarget=gdv/(1+targetROC);
+  // finance cost depends on P — approximate by using half as finance on acquisition
+  const finMonthly=inp.finRate/100/12;
+  // totalCost = P*acqMult + buildCost + finCost(P) + sellFees
+  // finCost(P) = P*finMonthly*buildMo + buildCost*finMonthly*(buildMo/2) + (P*acqMult+buildCost)*finMonthly*saleMo
+  // = P*(finMonthly*buildMo + acqMult*finMonthly*saleMo) + buildCost*(finMonthly*buildMo/2 + finMonthly*saleMo)
+  const pCoeff=inp.acqPct/100*1+1 + finMonthly*inp.buildMo + acqMult*finMonthly*inp.saleMo;
+  const fixed=buildCost+buildCost*(finMonthly*inp.buildMo/2+finMonthly*inp.saleMo)+sellFees;
+  const maxP=(totalCostTarget-fixed)/pCoeff;
+
+  if(maxP<=0){$('devRevMaxPrice').textContent='Not viable';$('devRevNote').textContent='Target return cannot be achieved at these inputs';return;}
+  $('devRevMaxPrice').textContent=fmtN(maxP);
+  $('devRevNote').textContent='At '+Math.round(targetROC*100)+'% target return on cost with GDV of '+fmtN(gdv);
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+fsRenderRefs();
+fsRenderAgent();
+</script>
+</body>
+</html>
